@@ -17,6 +17,5 @@ NOTIFICATION_DELAY=60000
 
 PORT=3001
 RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-
-# put your url
+put your url
 WEBHOOK_URL=https://webhook.site/
