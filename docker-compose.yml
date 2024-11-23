@@ -1,0 +1,61 @@
+version: '3.9'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # RabbitMQ management console
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:13
+    container_name: postgres-nebula
+    env_file:
+      - ./user-service/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    env_file:
+      - ./user-service/.env
+    depends_on:
+      - rabbitmq
+      - postgres
+    ports:
+      - '3000:3000'
+    networks:
+      - backend
+
+  notification-service:
+    build:
+      context: ./notify-service  # Path to the notification-service folder
+    container_name: notification-service
+    env_file:
+      - ./notify-service/.env
+    depends_on:
+      - rabbitmq
+    ports:
+      - "3001:3001"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
